@@ -1,0 +1,171 @@
+{
+  "pages": [{
+    "path": "pages/home/home",
+    "style": {
+      "navigationBarTitleText": "",
+      "enablePullDownRefresh": true,
+      "onReachBottomDistance": 150
+    }
+
+  }, {
+    "path": "pages/publish/publish",
+    "style": {
+      "navigationBarTitleText": "publish",
+      "enablePullDownRefresh": false
+      // "app-plus": {
+      //   "titleNView": true,
+      //   "background": "#000000"
+      // }
+    }
+
+  }, {
+    "path": "pages/message/message",
+    "style": {
+      "navigationBarTitleText": "",
+      "enablePullDownRefresh": false
+    }
+
+  }, {
+    "path": "pages/my/my",
+    "style": {
+      "navigationBarTitleText": "",
+      "enablePullDownRefresh": false
+    }
+
+  }],
+  "globalStyle": {
+    "navigationBarTitleText": "flea market",
+    "navigationBarBackgroundColor": "#000000",
+    "navigationStyle": "custom",
+    "backgroundColor": "#000000",
+    "app-plus": {
+      "titleNView": false,
+      "background": "#000000",
+      "scrollIndicator": "none"
+    }
+  },
+  "tabBar": {
+    "color":"#707070",
+    "selectedColor": "#c00000",
+    "fontSize":"6px",
+    "iconWidth":"16px",
+    "spacing":"10px",
+    "list": [{
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "static/tabs-icon/shouye.png",
+        "selectedIconPath": "static/tabs-icon/shouye-active.png"
+      },
+      {
+        "pagePath": "pages/publish/publish",
+        "text": "发布",
+        "iconPath": "static/tabs-icon/publish.png",
+        "selectedIconPath": "static/tabs-icon/publish-active.png"
+      }, {
+        "pagePath": "pages/message/message",
+        "text": "消息",
+        "iconPath": "static/tabs-icon/message.png",
+        "selectedIconPath": "static/tabs-icon/message-active.png"
+      }, {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "static/tabs-icon/my.png",
+        "selectedIconPath": "static/tabs-icon/my-active.png"
+      }
+    ]
+  },
+  "subPackages": [{
+    "root": "subpkg",
+    "pages": [{
+      "path": "search/search",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "selectLocation/selectLocation",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "goods-list/goods-list",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": true,
+        "onReachBottomDistance": 150
+
+      }
+
+    }, {
+      "path": "goods-details/goods-details",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "star-list/star-list",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "fav-list/fav-list",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "publish-list/publish-list",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "sold-list/sold-list",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "shop/shop",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }    ,{
+                    "path" : "chat/chat",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+                ,{
+                    "path" : "position-list/position-list",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
+  }]
+  // "easycom":{
+  //   "autoscan" : true,
+  //   "custom" :{
+  //     "mp-(.*)":"@/wxcomponents/weui/$1/$1"
+  //     // "van-(.*)":"@/wxcomponents/vant/$1/index.vue"
+  //   }
+  // }
+}

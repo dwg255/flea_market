@@ -1,0 +1,16 @@
+{
+  "name": "flea-market",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vant/weapp": "^1.6.9",
+    "vant": "^2.12.22",
+    "weui-miniprogram": "^1.0.8"
+  }
+}
