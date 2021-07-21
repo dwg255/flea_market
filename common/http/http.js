@@ -53,6 +53,4 @@ http.interceptors.response.use(async (response) => {
 	return Promise.reject(response)
 })
 
-export default {
-	http
-}
+export default http

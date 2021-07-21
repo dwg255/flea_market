@@ -5,7 +5,8 @@ import App from './App'
 import store from '@/common/store'
 Vue.prototype.$store = store
 
-import {http} from '@/common/http/http.js'
+import http from '@/common/http/http.js'
+
 Vue.prototype.$http = http
 
 Vue.config.productionTip = false

@@ -35,7 +35,7 @@ export const navList = [{
   },
   {
     imageUrl: "../../static/navs/all.png",
-    title: "全部",
+    title: "其他",
     cat_id: 8
   },
 ]
