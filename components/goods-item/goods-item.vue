@@ -2,44 +2,44 @@
 	<view class="goods-item-container">
 		<view class="goods-item" @click="handleClick">
 		  <view class="goods-item-head">
-		    <view class="sold-tag">
+		    <view class="sold-tag" v-if="goodsInfo.status == 1">
 		      <image class="sold-image" src="../../static/images/sold-tag1.png" mode="widthFix"></image>
 		    </view>
 		    <view class="avator">
-		      <image class="avator-img" src="../../static/navs/1.jpeg"></image>
+		      <image class="avator-img" :src="goodsInfo.avatar_url"></image>
 		      <view class="seller-info">
-		        <text class="nickname">dwg</text>
+		        <text class="nickname">{{goodsInfo.nickname}}</text>
 		        <text class="publish-date">4天前发布</text>
 		      </view>
 		    </view>
 		    <view class="goods-info">
-		      <view class="price">100元</view>
+		      <view class="price">{{goodsInfo.price |formatPrice}}</view>
 		      <view class="distance">据我323.32km</view>
 		    </view>
 		  </view>
 		  <view class="goods-item-content">
 		    <!-- 商品图片 -->
 		    <view class="goods-pics">
-		      <view class="pic-item">
-		        <image class="pic-img" src="../../static/images/goods-pic-1.jpg" mode="aspectFill"></image>
+		      <view class="pic-item" v-for="(item,index) in goodsInfo.pics" :key="index">
+		        <image class="pic-img" :src="item" mode="aspectFill"></image>
 		      </view>
-		      <view class="pic-item">
+		     <!-- <view class="pic-item">
 		        <image class="pic-img" src="../../static/images/goods-pics-2.jpg" mode="aspectFill"></image>
 		      </view>
 		      <view class="pic-item">
 		        <image class="pic-img" src="../../static/images/goods-pics-2.jpg" mode="aspectFill"></image>
-		      </view>
+		      </view> -->
 		      
 		
 		    </view>
 		    <!-- 商品标签 -->
 		    <view class="goods-tag">
-		      <text class="tag-item">big</text>
-		      <text class="tag-item">哈哈</text>
+		      <text class="tag-item" v-for="(item,index) in goodsInfo.tags" :key="index">{{item}}</text>
+		      <!-- <text class="tag-item">哈哈</text> -->
 		    </view>
 		    <!-- 商品说明 -->
 		    <view class="goods-content">
-		      迪士尼门票两张
+		      {{goodsInfo.content}}
 		    </view>
 		    <!-- dailog -->
 		    <view class="dailog">
@@ -63,26 +63,26 @@
 		       <view class="iconfont icon-dingwei1">
 		         
 		       </view>
-		       北京市石景山区阜石路168号
+		       {{goodsInfo.address}}
 		     </view>
 		     <view class="star-tags">
 		       <view class="star">
 		         <view class="iconfont icon-zan">
 		           
 		         </view>
-		         2
+		         {{goodsInfo.fav_num}}
 		       </view>
 		       <view class="star">
 		         <view class="iconfont icon-xiaoxi">
 		           
 		         </view>
-		         1
+		         {{goodsInfo.star_num}}
 		       </view>
 		       <view class="star">
 		         <view class="iconfont icon-eye">
 		           
 		         </view>
-		         29
+		         {{goodsInfo.views_num}}
 		       </view>
 		     </view>
 		  </view>
@@ -96,6 +96,12 @@
 <script>
 	export default {
 		name:"goods-item",
+    props:{
+      goodsInfo:{
+        type:Object,
+        required:true,
+      }
+    },
 		data() {
 			return {
 				

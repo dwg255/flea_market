@@ -3,16 +3,16 @@
     <my-tab-bar :title="'物品详情'"></my-tab-bar>
     <!-- 轮播图 -->
     <swiper class="swiper" :indicator-dots="true" :circular="true" :autoplay="true" :interval="3000" :duration="1000">
-      <swiper-item>
+      <swiper-item v-for="(item,index) in goodsDetails.pics" :key="index">
         <view class="swiper-item">
-          <image class="swiper-image" src="../../static/swiper-image/swiper-image-1.jpg" mode=""></image>
+          <image class="swiper-image" :src="item" mode=""></image>
         </view>
       </swiper-item>
-      <swiper-item>
+    <!--  <swiper-item>
         <view class="swiper-item">
           <image class="swiper-image" src="../../static/swiper-image/swiper-image-2.jpg" mode=""></image>
         </view>
-      </swiper-item>
+      </swiper-item> -->
     </swiper>
 
     <!-- 物品详情 -->
@@ -20,37 +20,37 @@
       <view class="head">
         <view class="left">
           <view class="title">
-            没啥用
+            {{goodsDetails.title}}
           </view>
           <view class="content">
             <view class="tag">
               19天前发布
             </view>
             <view class="tag">
-              36人浏览
+              {{goodsDetails.views_num}}人浏览
             </view>
             <view class="tag">
-              需自提
+              {{goodsDetails.express_type == 1 ? "可邮寄" : "需自提"}}</text>
             </view>
             <view class="tag">
-              库存量：1
+              库存量：{{goodsDetails.goods_num}}
             </view>
           </view>
           <view class="address">
-            自提地址：北京市石景山区阜石路168号
+            自提地址：{{goodsDetails.address}}
           </view>
         </view>
-        <view class="sold-tag">
+        <view class="sold-tag" v-if="goodsDetails.status == 1">
           <image class="sold-tag-img" src="../../static/images/sold-tag1.png" mode="widthFix"></image>
         </view>
       </view>
       <view class="describe">
-        嘿嘿
+        {{goodsDetails.content}}
       </view>
       <view class="footer">
         <view class="publish-address">
           <view class="iconfont icon-dingwei1"></view>
-          北京市石景山区阜石路168号
+          {{goodsDetails.address}}
         </view>
         <view class="fav-star">
           <view class="star" @click="addStar">
@@ -69,11 +69,11 @@
     <view class="seller">
       <view class="left">
         <view class="avator">
-          <image class="avator-img" src="../../static/navs/1.jpeg" mode=""></image>
+          <image class="avator-img" :src="goodsDetails.avatar_url" mode=""></image>
         </view>
         <view class="seller-info">
           <text>
-            dwg
+            {{goodsDetails.nickname}}
           </text>
           <text>
             共卖出2件宝贝
@@ -87,7 +87,7 @@
 
     <!-- 举报区域 -->
     <view class="contact">
-      <view class="contact-item" @click="openDailog(true)">
+      <view class="contact-item" @click="openDailog('report')">
         <view class="iconfont icon-lingdang"></view>
         <text>内容违规，我要举报</text>
       </view>
@@ -140,18 +140,12 @@
             </view>
           </view>
         </view>
-      </view>
-      
-      
+      </view> 
     </view>
-
-
-
-
     <!-- 底部锁定栏 -->
     <view class="foot">
       <view class="price">
-        需付：100元
+        需付：{{goodsDetails.price | formatPrice}}元
       </view>
       <view class="opt">
         <button type="default" @click="opt">操作</button>
@@ -182,18 +176,40 @@
 </template>
 
 <script>
+  import {goodsDetails} from '@/common/api/goods/goods.js'
   export default {
     data() {
       return {
+        goods_id:0,
         Star: true,
         isFav: true,
         dailogParams: {
           title: "请输入举报原因",
           placeholder: "在此输入内容..."
-        }
+        },
+        goodsDetails:{},
+        dialogList:[]
       }
     },
+    onLoad(option) {
+      this.goods_id = option.goods_id
+      this.getGoodsDetail()
+    },
+    created() {
+      
+    },
     methods: {
+      async getGoodsDetail(){
+        const res = await goodsDetails({},{goods_id:this.goods_id})
+        // console.log(res)
+        let pics,tags
+        try{ pics= JSON.parse(res.data.goodsInfo.pics) }catch(err){ pics = [] };
+        res.data.goodsInfo.pics = pics
+        try{ tags = JSON.parse(res.data.goodsInfo.tags) } catch(err){ tags = []};
+        res.data.goodsInfo.tags = tags
+        this.goodsDetails = res.data.goodsInfo
+        this.dialogList = res.data.dialogList
+      },
       // 跳转至商店
       gotoShop() {
         uni.navigateTo({
@@ -213,7 +229,7 @@
         });
       },
       // 打开对话框
-      openDailog(dailogType = "report") {
+      openDailog(dailogType) {
         if (dailogType == "report") {
           this.dailogParams.title = "请输入举报原因";
         } else if (dailogType == "response") {

@@ -10,13 +10,13 @@
         <view class="input-title">
           物品标题
         </view>
-        <input class="input-item input-title" type="text" placeholder="起一个吸引人的标题吧" />
+        <input class="input-item input-title" v-model="formData.title" type="text" placeholder="起一个吸引人的标题吧" />
       </view>
       <view class="form-item">
         <view class="input-title">
           物品描述
         </view>
-        <textarea class="input-item input-content" type="text" placeholder="请输入物品详细描述" maxlength="100" />
+        <textarea class="input-item input-content" type="text" placeholder="请输入物品详细描述" maxlength="100" v-model="formData.content" />
       </view>
       <view class="form-item upload-pics">
         <htz-image-upload name="imgfile" @uploadSuccess="uploadSuccess" :max="6" :sourceType="sourceType"
@@ -79,7 +79,7 @@
             价格
           </view>
           <view class="form-cell-right">
-            <input class="uni-input" type="number" v-model="formData.goods_num" maxlength="5" @confirm="addTag" />
+            <input class="uni-input" type="number" v-model="formData.goods_price" maxlength="5" @confirm="addTag" />
             <text class="price-unit">元</text>
           </view>
         </view>
@@ -136,10 +136,51 @@
 
 <script>
   var msgBoxClose = null
+	import {addGoods} from '@/common/api/goods/goods.js'
   import {
     navList
   } from "@/common/nav-list.js"
+  import {
+  	mapState
+  } from 'vuex';
+  function checkRequired(that,field,errMsg) {
+    if (typeof field == "string" && field.length != 0) {
+      return true
+    } else if (field instanceof Array && field.length != 0) {
+      return true
+    } else if( typeof field == "number" && field > 0 ) {
+      return true
+    }
+    that.goods_tag = ""
+    that.message.type = "error"
+    that.message.text = errMsg
+    that.showMsg()
+    return false
+  }
+  function checkMin(that,field, minLength,errMsg) {
+    if (typeof field == "string" && field.length >= minLength) {
+      return true
+    }
+    that.goods_tag = ""
+    that.message.type = "error"
+    that.message.text = errMsg
+    that.showMsg()
+    return false
+  }
+  function checkMax(that,field, maxLength) {
+    if (typeof field == "string" && field.length <= maxLength) {
+      return true
+    }
+    that.goods_tag = ""
+    that.message.type = "error"
+    that.message.text = errMsg
+    that.showMsg()
+    return false
+  }
   export default {
+    computed: {
+    	...mapState(['address','coordinate'])
+    },
     data() {
       return {
         tabBarHeight:0, //tabbar高度，为了消息弹出层避开
@@ -240,9 +281,37 @@
       onlineSellChange(e) {
         this.formData.online_sell = e.target.value
       },
-      publish() {
-        
-        
+      async publish() {
+        if (!(checkRequired(this,this.formData.title,"请输入标题") && 
+        checkRequired(this,this.formData.content,"请输入物品描述") &&
+        checkRequired(this,this.imgList,"请至少上传一张图片") &&
+        checkRequired(this,this.formData.goods_num,"请输入物品数量")&&
+        checkRequired(this,this.formData.goods_price,"请输入物品价格"))) {
+          return
+        }
+       
+        const data = await addGoods({...this.formData,pics:this.imgList,address:this.address,...{goods_num:parseInt(this.formData.goods_num),goods_price:parseInt(this.formData.goods_price)},...this.coordinate})
+        if (data.statusCode == 200) {
+          uni.showToast({
+              title: '发布成功！',
+              duration: 2000,
+              icon:"success"
+          });
+          this.formData = {
+            title: "",
+            content: "",
+            goods_tags: ["apple", "phone"],
+            goods_num: 1,
+            goods_price: 0,
+            online_sell: true,
+            express_type: 1,
+            address: "",
+            cat_id:1
+          }
+          uni.navigateTo({
+            url:"../home/home"
+          })
+        }
       }
     },
     // 获取上传状态

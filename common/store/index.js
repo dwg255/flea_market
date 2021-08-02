@@ -7,7 +7,11 @@ const store = new Vuex.Store({
     tabBarCenterMaxWidth:0,
     tabBarHeight:0,
     address:"",
-    positionList:[]
+    positionList:[],
+    coordinate:{
+      latitude: 0,
+      longitude: 0
+    }
   },
   mutations: {
     setTabBarCenterMaxWidth(state,num) {
@@ -17,11 +21,14 @@ const store = new Vuex.Store({
       state.tabBarHeight = num
     },
     setAddress(state,address) {
-      console.log("set address: "+ address)
+      // console.log("set address: "+ address)
       state.address = address
     },
     setPositionList(state,positionList) {
       state.positionList = positionList
+    },
+    setCoordinate(state,coordinate) {
+      state.coordinate = coordinate
     }
   }
 })

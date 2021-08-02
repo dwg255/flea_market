@@ -54,7 +54,7 @@
 
 			<!-- 商品列表 -->
 			<view class="goods-list">
-				<goods-item v-for="(item,index) in goodsList" :key="index" @click="gotoGoodsDetails(item)"></goods-item>
+				<goods-item v-for="(item,index) in goodsList" :key="index" @click="gotoGoodsDetails(item)" :goodsInfo="item"></goods-item>
 			</view>
 			<view class="has-more" v-show="goodsList.length > 0">
 				<text v-if="isLoading">加载中...</text>
@@ -79,6 +79,7 @@
 	import {
 		navList
 	} from "@/common/nav-list.js"
+    import {goodsList} from '@/common/api/goods/goods.js'
 	const getTokenStorage = () => {
 		let token = ''
 		try {
@@ -100,18 +101,19 @@
 				isLoading: false, //是否正在加载
 				switchColor: false,
 				active: 0,
-				goodsList: [{}, {}, {}, {}, {}],
+				goodsList: [],
 				nvaList: navList,
 				fab: {
 					iconPath: "@/static/images/back-top.jpg"
-				}
+				},
+        queryParam:{
+          page_num:1,
+          page_size:5,
+          total:0
+        },
 			}
 		},
 		created() {
-			if (!getTokenStorage()) {
-				this.changeLogin();
-			}
-
 			if (!this.address) {
 				uni.getLocation({
 					fail: function(res) {
@@ -120,7 +122,7 @@
 					success: (res) => {
 						console.log('当前位置的经度：' + res.longitude);
 						console.log('当前位置的纬度：' + res.latitude);
-
+            this.setCoordinate({latitude: res.latitude,longitude: res.longitude})
 						let qqmapsdk = new QQMapWX({
 							key: "3RDBZ-WSOL2-E36UY-CRAAF-SM2X3-DDFWE"
 						})
@@ -144,6 +146,10 @@
 					}
 				})
 			}
+      if (!getTokenStorage()) {
+      	this.changeLogin();
+      }
+      this.getGoodsList()
 		},
 		// //监听页面滚动
 		// Scroll(res) {
@@ -152,52 +158,50 @@
 		// 下拉刷新
 		onPullDownRefresh() {
 			if (this.isLoading) return
-			this.isLoading = true
-			uni.showLoading({
-				title: "数据加载中..."
-			})
-			this.isLoading = true
-			setTimeout(() => {
-				uni.hideLoading()
-				this.goodsList = this.getGoodsList()
-				this.isLoading = false
-			}, 1000)
+			// uni.showLoading({
+			// 	title: "数据加载中..."
+			// })
+      this.queryParam.page_num = 1
+      this.goodsList = []
+      this.getGoodsList()
+      // uni.hideLoading()
 		},
 		// 触底加载
 		onReachBottom() {
 			if (this.isLoading) {
 				return
 			}
-			if (count > 3) {
-				return this.hasMore = "已加载全部"
-			}
-			count++
-			uni.showLoading({
-				title: "数据加载中..."
-			})
-			this.isLoading = true
-			setTimeout(() => {
-				uni.hideLoading()
-				this.goodsList = [...[{}, {}, {}, {}], ...this.goodsList]
-				this.isLoading = false
-			}, 1000)
+      // this.isLoading = true
+      this.getGoodsList()
+      // this.isLoading = false
 		},
 		methods: {
-			...mapMutations(['setAddress', 'setPositionList']),
-			handleSiwtchColor() {
-				this.switchColor = !this.switchColor
-			},
-			sleep(ms) {
-				return new Promise(resolve => setTimeout(resolve, ms))
-			},
+			...mapMutations(['setAddress', 'setPositionList','setCoordinate']),
+      
 			// 加载数据
 			async getGoodsList() {
-				uni.showLoading({
-					title: "数据加载中..."
-				})
-				await this.sleep(1000)
-				uni.hideLoading()
-				return [{}, {}, {}, {}]
+        // console.log("in",this.isloadings)
+        if (this.isloading) return
+        if (this.hasMore == "已加载全部" ) return
+        this.isloading = true
+        const res = await goodsList({...this.queryParam,type:this.active})
+        // console.log(res)
+        res.data.list = res.data.list.map((item,index) => { 
+          let pics,tags
+          try{ pics= JSON.parse(item.pics) }catch(err){ pics = [] };
+          try{ tags = JSON.parse(item.tags) } catch(err){ tags = []};
+          return {...item,pics,tags}
+        })
+        if(this.isloading) {
+          if (res.statusCode !== 200) return uni.$showMsg()
+          this.goodsList = [...this.goodsList,...res.data.list]
+          this.queryParam.total = res.data.total
+          this.queryParam.page_num += this.queryParam.page_num
+          this.isloading = false
+          if (this.queryParam.total <=  (this.queryParam.page_num - 1) * this.queryParam.page_size) {
+             return this.hasMore = "已加载全部"
+           }
+        }
 			},
 			// backTop 返回顶部
 			backTop() {
@@ -207,9 +211,12 @@
 				});
 			},
 			//切换tab栏
-			async changeTab(active) {
+			changeTab(active) {
+        this.hasMore = "下拉获取更多"
 				this.active = active
-				this.goodsList = await this.getGoodsList()
+        this.goodsList = []
+        this.queryParam.page_num = 1
+				this.getGoodsList()
 			},
 			// 点击分类导航栏
 			gotoGoodsList(item) {
@@ -232,7 +239,7 @@
 			// 点击商品详情
 			gotoGoodsDetails(item) {
 				uni.navigateTo({
-					url: "../../subpkg/goods-details/goods-details"
+					url: "../../subpkg/goods-details/goods-details?goods_id=" + item.goods_id
 				})
 			},
 			changeLogin() {
