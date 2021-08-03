@@ -5,10 +5,10 @@
     <swiper class="swiper" :indicator-dots="true" :circular="true" :autoplay="true" :interval="3000" :duration="1000">
       <swiper-item v-for="(item,index) in goodsDetails.pics" :key="index">
         <view class="swiper-item">
-          <image class="swiper-image" :src="item" mode=""></image>
+          <image class="swiper-image" :src="item"></image>
         </view>
       </swiper-item>
-    <!--  <swiper-item>
+      <!--  <swiper-item>
         <view class="swiper-item">
           <image class="swiper-image" src="../../static/swiper-image/swiper-image-2.jpg" mode=""></image>
         </view>
@@ -91,7 +91,7 @@
         <view class="iconfont icon-lingdang"></view>
         <text>内容违规，我要举报</text>
       </view>
-      <view class="contact-item" @click="openDailog()">
+      <view class="contact-item" @click="openDailog('message')">
         <view class="iconfont icon-xiaoxi"></view>
         <text>很感兴趣，我要留言</text>
       </view>
@@ -102,25 +102,29 @@
       <view class="title">
         留言墙
       </view>
-     <view class="message-item">
-       <view class="header">
-         <view class="avator">
-           <image class="avator-img" src="../../static/navs/1.jpeg"></image>
-           <text>dwg</text>
-         </view>
-         <text class="contact-date">6天前来过</text>
-       </view>
-       <view class="content">
-         <view class="line">
-           <text>在吗？</text>
-           <view class="response">
-             主人回复：在的。
-           </view>
-         </view>
-         
-       </view>
-     </view> 
-     <view class="message-item">
+      <view class="message-item" v-for="(item,index) in dialogList" :key="index">
+        <view class="header">
+          <view class="avator">
+            <image class="avator-img" :src="item.customer_avatar"></image>
+            <text>{{item.customer_nickname}}</text>
+          </view>
+          <text class="contact-date">6天前来过</text>
+        </view>
+        <view class="content">
+          <view class="line">
+            <text>{{item.question}}</text>
+            <view class="response" v-if="item.answer.length > 0">
+              主人回复：{{item.answer}}
+            </view>
+          </view>
+          <view class="seller-response" v-if="item.answer.length == 0 && userInfo.user_id == goodsDetails.user_id">
+            <view class="icon-section" @click="openDailog('response',item.id)">
+              回复 <view class="iconfont icon-xiaoxi"> </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <!-- <view class="message-item">
         <view class="header">
           <view class="avator">
             <image class="avator-img" src="../../static/navs/1.jpeg"></image>
@@ -140,7 +144,7 @@
             </view>
           </view>
         </view>
-      </view> 
+      </view> -->
     </view>
     <!-- 底部锁定栏 -->
     <view class="foot">
@@ -168,7 +172,7 @@
     <!-- 消息弹出层 -->
     <uni-popup ref="popup" type="dialog">
       <uni-popup-dialog :title="dailogParams.title" :placeholder="dailogParams.placeholder" mode="input"
-        :duration="2000" :before-close="true" @close="close" @confirm="confirm">
+        v-model="message" :duration="2000" :before-close="true" @close="close" @confirm="confirm">
 
       </uni-popup-dialog>
     </uni-popup>
@@ -176,19 +180,41 @@
 </template>
 
 <script>
-  import {goodsDetails} from '@/common/api/goods/goods.js'
+  import {
+    mapState,
+    // mapMutations
+  } from 'vuex';
+  import {
+    goodsDetails,
+    sold
+  } from '@/common/api/goods/goods.js'
+  import {
+    addStar,
+    removeStar
+  } from '@/common/api/star/star.js'
+  import {
+    addDialog,
+    getDialog,
+    addResponse
+  } from "@/common/api/dialog/dialog.js"
   export default {
+    computed: {
+      ...mapState(['userInfo'])
+    },
     data() {
       return {
-        goods_id:0,
+        goods_id: 0,
         Star: true,
         isFav: true,
         dailogParams: {
+          type: "", // report 举报  response 回复   message 留言
           title: "请输入举报原因",
-          placeholder: "在此输入内容..."
+          placeholder: "在此输入内容...",
+          dialogId: 0,
         },
-        goodsDetails:{},
-        dialogList:[]
+        goodsDetails: {},
+        dialogList: [],
+        message: "",
       }
     },
     onLoad(option) {
@@ -196,19 +222,30 @@
       this.getGoodsDetail()
     },
     created() {
-      
+
     },
     methods: {
-      async getGoodsDetail(){
-        const res = await goodsDetails({},{goods_id:this.goods_id})
+      async getGoodsDetail() {
+        const res = await goodsDetails({}, {
+          goods_id: this.goods_id
+        })
         // console.log(res)
-        let pics,tags
-        try{ pics= JSON.parse(res.data.goodsInfo.pics) }catch(err){ pics = [] };
+        let pics, tags
+        try {
+          pics = JSON.parse(res.data.goodsInfo.pics)
+        } catch (err) {
+          pics = []
+        };
         res.data.goodsInfo.pics = pics
-        try{ tags = JSON.parse(res.data.goodsInfo.tags) } catch(err){ tags = []};
+        try {
+          tags = JSON.parse(res.data.goodsInfo.tags)
+        } catch (err) {
+          tags = []
+        };
         res.data.goodsInfo.tags = tags
         this.goodsDetails = res.data.goodsInfo
         this.dialogList = res.data.dialogList
+        this.Star = res.data.star
       },
       // 跳转至商店
       gotoShop() {
@@ -229,18 +266,41 @@
         });
       },
       // 打开对话框
-      openDailog(dailogType) {
+      openDailog(dailogType, dialogId) {
+        this.dailogParams.type = dailogType
         if (dailogType == "report") {
           this.dailogParams.title = "请输入举报原因";
         } else if (dailogType == "response") {
           this.dailogParams.title = "请输入回复内容";
+          this.dailogParams.dialogId = dialogId
         } else {
           this.dailogParams.title = "请输入留言内容";
         }
         this.$refs.popup.open()
       },
       // 点赞
-      addStar() {
+      async addStar() {
+        let param = {
+          goods_id: parseInt(this.goods_id),
+          user_id: parseInt(this.userInfo.user_id)
+        }
+        let res
+        console.log(this.Star)
+        if (this.Star) {
+          console.log("add star")
+          res = await removeStar(param)
+        } else {
+          console.log("remove star")
+          res = await addStar(param)
+        }
+
+        if (res.statusCode == 200) {
+          uni.showToast({
+            title: res.data.msg,
+            duration: 2000,
+            icon: "success"
+          });
+        }
         this.Star = !this.Star
       },
       addFav() {
@@ -250,8 +310,20 @@
       opt() {
         uni.showActionSheet({
           itemList: ['已转让', '下架', '编辑'],
-          success: function(res) {
+          success: async (res) => {
             console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
+            if (res.tapIndex == 1) {
+              // console.log("ok")
+              let res = await sold({},{goods_id:this.goods_id,status:1})
+              // let res = await sold({},{goods_id:this.goods_id,status:1});
+              if (res.statusCode == 200) {
+                uni.showToast({
+                  title: res.data.msg,
+                  duration: 2000,
+                  icon: "success"
+                });
+              }
+            }
           },
           fail: function(res) {
             console.log(res.errMsg);
@@ -264,8 +336,53 @@
       close() {
         this.$refs.popup.close()
       },
-      confirm(value) {
-        console.log(value)
+      async confirm(value) {
+        // console.log(value)
+        let message = value.trim()
+        if (message) {
+          // 留言
+          if (this.dailogParams.type == "message") {
+            let res = await addDialog({
+              goods_id: parseInt(this.goods_id),
+              message
+            })
+            if (res.statusCode == 200) {
+              uni.showToast({
+                title: '留言成功！',
+                duration: 2000,
+                icon: "success"
+              });
+              this.message = ""
+              let res = await getDialog({}, {
+                goods_id: parseInt(this.goods_id),
+              })
+              if (res.statusCode == 200) {
+                this.dialogList = res.data.dialogList
+              }
+            }
+            // 回复
+          } else if (this.dailogParams.type == "response") {
+            let res = await addResponse({}, {
+              id: parseInt(this.dailogParams.dialogId),
+              user_id: parseInt(this.goodsDetails.user_id),
+              message
+            })
+            if (res.statusCode == 200) {
+              uni.showToast({
+                title: '回复成功！',
+                duration: 2000,
+                icon: "success"
+              });
+              this.message = ""
+              let res = await getDialog({}, {
+                goods_id: parseInt(this.goods_id),
+              })
+              if (res.statusCode == 200) {
+                this.dialogList = res.data.dialogList
+              }
+            }
+          }
+        }
         this.$refs.popup.close()
       }
     }
@@ -279,7 +396,7 @@
     // 轮播图
     .swiper {
       width: 750rpx;
-      height: 350rpx;
+      // height: 350rpx;
 
       .swiper-item {
         width: 100%;
@@ -522,16 +639,19 @@
         }
 
         .content {
-          
+
           font-size: 32rpx;
           border-top: 1px dotted #E4E4E4;
           border-bottom: 1px solid #C3C3C3;
+
           .line {
             padding: 20rpx;
+
             &:nth-child(2) {
               border-top: 1px dotted #E4E4E4;
             }
           }
+
           .response {
             display: flex;
             align-items: center;

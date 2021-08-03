@@ -4,13 +4,13 @@
 import http from '@/common/http/http.js'
 
 /**
- * 添加商品
+ * 查询商品列表
  * @param {Object} params - 查询参数  
  */
-export const addGoods = (data, params) => {
+export const addDialog = (data, params) => {
   return http.middleware({
     method: 'POST', // 必须大写
-    url: '/api/goods/add',
+    url: '/api/dialog/add',
     data: data,
     params: params,
     custom: {
@@ -23,25 +23,10 @@ export const addGoods = (data, params) => {
  * 查询商品列表
  * @param {Object} params - 查询参数  
  */
-export const goodsList = (data, params) => {
+export const getDialog = (data, params) => {
   return http.middleware({
     method: 'POST', // 必须大写
-    url: '/api/goods/list',
-    data: data,
-    params: params,
-    custom: {
-      auth: true
-    }
-  })
-}
-/**
- * 下架
- * @param {Object} params - 查询参数  
- */
-export const sold = (data, params) => {
-  return http.middleware({
-    method: 'POST', // 必须大写
-    url: '/api/goods/status',
+    url: '/api/dialog/list',
     data: data,
     params: params,
     custom: {
@@ -51,13 +36,13 @@ export const sold = (data, params) => {
 }
 
 /**
- * 查询商品想抢
+ * 查询商品列表
  * @param {Object} params - 查询参数  
  */
-export const goodsDetails = (data, params) => {
+export const addResponse = (data, params) => {
   return http.middleware({
     method: 'POST', // 必须大写
-    url: '/api/goods/detail',
+    url: '/api/dialog/response',
     data: data,
     params: params,
     custom: {
@@ -65,4 +50,3 @@ export const goodsDetails = (data, params) => {
     }
   })
 }
-

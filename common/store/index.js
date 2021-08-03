@@ -11,9 +11,13 @@ const store = new Vuex.Store({
     coordinate:{
       latitude: 0,
       longitude: 0
-    }
+    },
+    userInfo:{}
   },
   mutations: {
+    setUserInfo(state,userInfo) {
+      state.userInfo = userInfo
+    },
     setTabBarCenterMaxWidth(state,num) {
       state.tabBarCenterMaxWidth = num
     },

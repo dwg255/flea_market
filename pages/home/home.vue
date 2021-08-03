@@ -87,9 +87,16 @@
 		} catch (e) {}
 		return token
 	}
+  const getStorage = (key) => {
+    let val = ""
+  	try {
+  		val = uni.getStorageSync(key)
+  	} catch (e) {}
+  	return val
+  }
 	export default {
 		computed: {
-			...mapState(['tabBarCenterMaxWidth', 'address'])
+			...mapState(['userInfo','tabBarCenterMaxWidth', 'address'])
 		},
 		data() {
 			return {
@@ -149,6 +156,18 @@
       if (!getTokenStorage()) {
       	this.changeLogin();
       }
+      let user_info_str = getStorage("user_info")
+      let user_info
+      try {
+        user_info = JSON.parse(user_info_str)
+        if (!user_info.user_id || !user_info.nickname || !user_info.avatar_url) throw "";
+        this.setUserInfo(user_info)
+        uni.setStorage('user_info',user_info)
+      }catch(e) {
+        this.changeLogin();
+      }
+      // Object.keys(this.userInfo).length == 0
+      
       this.getGoodsList()
 		},
 		// //监听页面滚动
@@ -176,7 +195,7 @@
       // this.isLoading = false
 		},
 		methods: {
-			...mapMutations(['setAddress', 'setPositionList','setCoordinate']),
+			...mapMutations(['setUserInfo','setAddress', 'setPositionList','setCoordinate']),
       
 			// 加载数据
 			async getGoodsList() {
@@ -244,6 +263,7 @@
 			},
 			changeLogin() {
 				//登录
+        console.log(this.userInfo)
 				uni.login({
 					provider: 'weixin',
 					success: res => {
@@ -282,8 +302,15 @@
 											key: 'token',
 											data:data.data.token
 										})
-										console.log(data.data.token)
+										// console.log(data.data.token)
 										console.log('获取用户信息', res);
+                    this.setUserInfo({
+                      user_id:data.data.user_info.user_id,
+                      nickname:data.data.user_info.nickname,
+                      avatar_url:data.data.user_info.avatar_url,
+                    });
+                    uni.setStorage({key:'user_info',data:JSON.stringify(this.userInfo)})
+                    // console.log(this.userInfo);
 										// //解密encryptedData，可获取用户openId
 										// let pc = new WXBizDataCrypt(appid, this
 										// 	.session_key);

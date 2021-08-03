@@ -44,15 +44,15 @@
 		    <!-- dailog -->
 		    <view class="dailog">
 		     
-		      <view class="dailog-content">
+		      <view class="dailog-content" v-if="goodsInfo.new_message">
 		        <view class="dailog-line">
-		          dwg：还在吗
+		          {{goodsInfo.new_message.customer_nickname}}：{{goodsInfo.new_message.question}}
 		        </view>
-		        <view class="dailog-line">
+		        <view class="dailog-line" v-if="goodsInfo.new_message.answer">
               <view class="dailog-left-tag">
                 
               </view>
-		          主人回复：在的呀
+		          主人回复：{{goodsInfo.new_message.answer}}
 		        </view>
 		      </view>
 		    </view>
@@ -70,13 +70,13 @@
 		         <view class="iconfont icon-zan">
 		           
 		         </view>
-		         {{goodsInfo.fav_num}}
+		         {{goodsInfo.star_num}}
 		       </view>
 		       <view class="star">
 		         <view class="iconfont icon-xiaoxi">
 		           
 		         </view>
-		         {{goodsInfo.star_num}}
+		         {{goodsInfo.fav_num}}
 		       </view>
 		       <view class="star">
 		         <view class="iconfont icon-eye">
