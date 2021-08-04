@@ -1,5 +1,5 @@
 <template>
-  <view class="goods-details-container">
+  <view class="goods-details-container" v-if="ready">
     <my-tab-bar :title="'物品详情'"></my-tab-bar>
     <!-- 轮播图 -->
     <swiper class="swiper" :indicator-dots="true" :circular="true" :autoplay="true" :interval="3000" :duration="1000">
@@ -76,7 +76,7 @@
             {{goodsDetails.nickname}}
           </text>
           <text>
-            共卖出2件宝贝
+            共卖出{{goodsDetails.goods_num}}件宝贝
           </text>
         </view>
       </view>
@@ -203,6 +203,7 @@
     },
     data() {
       return {
+        ready:false,
         goods_id: 0,
         Star: true,
         isFav: true,
@@ -244,13 +245,15 @@
         };
         res.data.goodsInfo.tags = tags
         this.goodsDetails = res.data.goodsInfo
+        this.goodsDetails.goods_num = res.data.goods_num
         this.dialogList = res.data.dialogList
         this.Star = res.data.star
+        this.ready = true
       },
       // 跳转至商店
       gotoShop() {
         uni.navigateTo({
-          url: "../../subpkg/shop/shop"
+          url: "../../subpkg/shop/shop?shop_id=" + this.goodsDetails.user_id
         })
       },
       // 跳转至首页
@@ -323,6 +326,10 @@
                   icon: "success"
                 });
               }
+            } else if (res.tapIndex == 2) {
+              uni.reLaunch({
+                url:"../../pages/publish/publish?goods_id=" + this.goods_id
+              })
             }
           },
           fail: function(res) {
@@ -335,7 +342,7 @@
       },
       close() {
         this.$refs.popup.close()
-      },
+      },	
       async confirm(value) {
         // console.log(value)
         let message = value.trim()

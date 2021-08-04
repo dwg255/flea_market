@@ -1,8 +1,8 @@
 <template>
 	<view class="goods-item-container">
-		<view class="goods-item" @click="handleClick">
+		<view class="goods-item" @click="gotoGoodsDetails">
 		  <view class="goods-item-head">
-		    <view class="sold-tag" v-if="goodsInfo.status == 1">
+		    <view class="sold-tag" v-if="goodsInfo.status != 0">
 		      <image class="sold-image" src="../../static/images/sold-tag1.png" mode="widthFix"></image>
 		    </view>
 		    <view class="avator">
@@ -107,11 +107,13 @@
 				
 			};
 		},
-    methods: {
-      // 点击事件
-      handleClick(){
-        this.$emit("click")
-      }
+    methods: { 
+      // 点击商品详情
+			gotoGoodsDetails() {
+				uni.navigateTo({
+					url: "../../subpkg/goods-details/goods-details?goods_id=" + this.goodsInfo.goods_id
+				})
+			},
     }
 	}
 </script>

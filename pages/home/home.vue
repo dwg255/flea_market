@@ -54,7 +54,7 @@
 
 			<!-- 商品列表 -->
 			<view class="goods-list">
-				<goods-item v-for="(item,index) in goodsList" :key="index" @click="gotoGoodsDetails(item)" :goodsInfo="item"></goods-item>
+				<goods-item v-for="(item,index) in goodsList" :key="index" :goodsInfo="item"></goods-item>
 			</view>
 			<view class="has-more" v-show="goodsList.length > 0">
 				<text v-if="isLoading">加载中...</text>
@@ -254,13 +254,8 @@
 				uni.navigateTo({
 					url: "../../subpkg/position-list/position-list"
 				})
-			},
-			// 点击商品详情
-			gotoGoodsDetails(item) {
-				uni.navigateTo({
-					url: "../../subpkg/goods-details/goods-details?goods_id=" + item.goods_id
-				})
-			},
+			}, 
+		
 			changeLogin() {
 				//登录
         console.log(this.userInfo)

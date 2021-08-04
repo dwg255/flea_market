@@ -18,6 +18,21 @@ export const addGoods = (data, params) => {
     }
   })
 }
+/**
+ * 修改商品
+ * @param {Object} params - 查询参数  
+ */
+export const updateGoods = (data, params) => {
+  return http.middleware({
+    method: 'POST', // 必须大写
+    url: '/api/goods/update',
+    data: data,
+    params: params,
+    custom: {
+      auth: true
+    }
+  })
+}
 
 /**
  * 查询商品列表
@@ -49,7 +64,21 @@ export const sold = (data, params) => {
     }
   })
 }
-
+/**
+ * 下架
+ * @param {Object} params - 查询参数  
+ */
+export const deleteGoods = (data, params) => {
+  return http.middleware({
+    method: 'POST', // 必须大写
+    url: '/api/goods/delete',
+    data: data,
+    params: params,
+    custom: {
+      auth: true
+    }
+  })
+}
 /**
  * 查询商品想抢
  * @param {Object} params - 查询参数  

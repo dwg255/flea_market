@@ -1,6 +1,6 @@
 <template>
   <view class="publish-container">
-   <my-tab-bar id="my-tab-bar" :title="'物品发布'">
+    <my-tab-bar id="my-tab-bar" :title="'物品发布'">
       <template v-slot:left>
         <view @click="gotoHome" :class="{colorBlack:switchColor}" class="iconfont icon-shouye1"></view>
       </template>
@@ -16,7 +16,8 @@
         <view class="input-title">
           物品描述
         </view>
-        <textarea class="input-item input-content" type="text" placeholder="请输入物品详细描述" maxlength="100" v-model="formData.content" />
+        <textarea class="input-item input-content" type="text" placeholder="请输入物品详细描述" maxlength="100"
+          v-model="formData.content" />
       </view>
       <view class="form-item upload-pics">
         <htz-image-upload name="imgfile" @uploadSuccess="uploadSuccess" :max="6" :sourceType="sourceType"
@@ -102,7 +103,8 @@
             配送方式
           </view>
           <view class="form-cell-right">
-            <picker mode="selector" :range="expressList" range-key="text" @change="expressTypeChange" :value="expressIndex">
+            <picker mode="selector" :range="expressList" range-key="text" @change="expressTypeChange"
+              :value="expressIndex">
               <view class="picker">
                 <view class="uni-input">{{expressList[expressIndex].text}}</view>
                 <view class="iconfont icon-arrow-right">
@@ -120,35 +122,39 @@
       </view>
       <!-- 提交按钮 -->
       <button class="submit" type="default" @click="publish">确定</button>
-      
+
     </view>
 
     <!-- pop 弹出层，提示消息 -->
     <uni-popup :animation="true" ref="msgBox" type="bottom">
-      <uni-popup-message :style="{position: 'absolute',top: tabBarHeight + 'px',width:'750rpx'}" :type="message.type" 
-      :message="message.text"
-      :duration="2000">
+      <uni-popup-message :style="{position: 'absolute',top: tabBarHeight + 'px',width:'750rpx'}" :type="message.type"
+        :message="message.text" :duration="2000">
       </uni-popup-message>
     </uni-popup>
-   
+
   </view>
 </template>
 
 <script>
   var msgBoxClose = null
-	import {addGoods} from '@/common/api/goods/goods.js'
+  import {
+    addGoods,
+    updateGoods,
+    goodsDetails
+  } from '@/common/api/goods/goods.js'
   import {
     navList
   } from "@/common/nav-list.js"
   import {
-  	mapState
+    mapState
   } from 'vuex';
-  function checkRequired(that,field,errMsg) {
+
+  function checkRequired(that, field, errMsg) {
     if (typeof field == "string" && field.length != 0) {
       return true
     } else if (field instanceof Array && field.length != 0) {
       return true
-    } else if( typeof field == "number" && field > 0 ) {
+    } else if (typeof field == "number" && field > 0) {
       return true
     }
     that.goods_tag = ""
@@ -157,7 +163,8 @@
     that.showMsg()
     return false
   }
-  function checkMin(that,field, minLength,errMsg) {
+
+  function checkMin(that, field, minLength, errMsg) {
     if (typeof field == "string" && field.length >= minLength) {
       return true
     }
@@ -167,7 +174,8 @@
     that.showMsg()
     return false
   }
-  function checkMax(that,field, maxLength) {
+
+  function checkMax(that, field, maxLength) {
     if (typeof field == "string" && field.length <= maxLength) {
       return true
     }
@@ -179,17 +187,30 @@
   }
   export default {
     computed: {
-    	...mapState(['address','coordinate'])
+      ...mapState(['address', 'coordinate'])
+    },
+    onLoad(option) {
+      this.formData.goods_id = option.goods_id
+      if (option.goods_id) {
+        this.loadGoodsDetail()
+      }
     },
     data() {
       return {
-        tabBarHeight:0, //tabbar高度，为了消息弹出层避开
+        tabBarHeight: 0, //tabbar高度，为了消息弹出层避开
         index: 0, //选中的key
         expressIndex: 0,
-        confirmPublish: false,     //同意发布公约
-        navList: navList,   //物品分类
-        expressList:[{express_type:1,text:"快递"},{express_type:2,text:"自提"}],
+        confirmPublish: false, //同意发布公约
+        navList: navList, //物品分类
+        expressList: [{
+          express_type: 1,
+          text: "快递"
+        }, {
+          express_type: 2,
+          text: "自提"
+        }],
         formData: {
+          goods_id: 0,
           title: "",
           content: "",
           goods_tags: ["apple", "phone"],
@@ -198,7 +219,7 @@
           online_sell: true,
           express_type: 1,
           address: "",
-          cat_id:1
+          cat_id: 1
         },
         // 图片上传相关
         imgList: [],
@@ -221,15 +242,15 @@
       showMsg() {
         this.$refs.msgBox.open('top')
         clearTimeout(msgBoxClose)
-        
-        msgBoxClose = setTimeout(()=>{
+
+        msgBoxClose = setTimeout(() => {
           this.$refs.msgBox.close()
           msgBoxClose = null
-        },2000)
+        }, 2000)
       },
       // 打开协议
-      readAgreement(){
-        
+      readAgreement() {
+
       },
       //选择商品分类
       catIdChange(e) {
@@ -282,36 +303,96 @@
         this.formData.online_sell = e.target.value
       },
       async publish() {
-        if (!(checkRequired(this,this.formData.title,"请输入标题") && 
-        checkRequired(this,this.formData.content,"请输入物品描述") &&
-        checkRequired(this,this.imgList,"请至少上传一张图片") &&
-        checkRequired(this,this.formData.goods_num,"请输入物品数量")&&
-        checkRequired(this,this.formData.goods_price,"请输入物品价格"))) {
+        if (!(checkRequired(this, this.formData.title, "请输入标题") &&
+            checkRequired(this, this.formData.content, "请输入物品描述") &&
+            checkRequired(this, this.imgList, "请至少上传一张图片") &&
+            checkRequired(this, this.formData.goods_num, "请输入物品数量") &&
+            checkRequired(this, this.formData.goods_price, "请输入物品价格"))) {
           return
         }
-       
-        const data = await addGoods({...this.formData,pics:this.imgList,address:this.address,...{goods_num:parseInt(this.formData.goods_num),goods_price:parseInt(this.formData.goods_price)},...this.coordinate})
-        if (data.statusCode == 200) {
-          uni.showToast({
-              title: '发布成功！',
-              duration: 2000,
-              icon:"success"
-          });
-          this.formData = {
-            title: "",
-            content: "",
-            goods_tags: ["apple", "phone"],
-            goods_num: 1,
-            goods_price: 0,
-            online_sell: true,
-            express_type: 1,
-            address: "",
-            cat_id:1
-          }
-          uni.navigateTo({
-            url:"../home/home"
+        if (this.formData.goods_id) {
+          // 添加
+          const data = await updateGoods({
+            ...this.formData,
+            pics: this.imgList,
+            address: this.address,
+            ...{
+              goods_num: parseInt(this.formData.goods_num),
+              goods_price: parseInt(this.formData.goods_price)
+            },
+            ...this.coordinate
           })
+          if (data.statusCode == 200) {
+            this.clear()
+          }
+        } else {
+          // 修改
+          const data = await addGoods({
+            ...this.formData,
+            pics: this.imgList,
+            address: this.address,
+            ...{
+              goods_num: parseInt(this.formData.goods_num),
+              goods_price: parseInt(this.formData.goods_price)
+            },
+            ...this.coordinate
+          })
+          if (data.statusCode == 200) {
+            this.clear()
+          }
         }
+      },
+      clear() {
+        console.log("clear")
+        uni.showToast({
+          title: '发布成功！',
+          duration: 2000,
+          icon: "success"
+        });
+        this.formData = {
+          title: "",
+          content: "",
+          goods_tags: ["apple", "phone"],
+          goods_num: 1,
+          goods_price: 0,
+          online_sell: true,
+          express_type: 1,
+          address: "",
+          cat_id: 1
+        }
+        uni.switchTab({
+           url: "../home/home"
+        })
+      },
+      async loadGoodsDetail() {
+        const res = await goodsDetails({}, {
+          goods_id: parseInt(this.formData.goods_id)
+        })
+        // console.log(res)
+        let pics, tags
+        try {
+          pics = JSON.parse(res.data.goodsInfo.pics)
+        } catch (err) {
+          pics = []
+        };
+        res.data.goodsInfo.pics = pics
+        try {
+          tags = JSON.parse(res.data.goodsInfo.tags)
+        } catch (err) {
+          tags = []
+        };
+        res.data.goodsInfo.tags = tags
+        this.formData = res.data.goodsInfo
+        this.imgList = res.data.goodsInfo.pics
+        this.index = res.data.goodsInfo.cat_id
+        this.formData.goods_tags = res.data.goodsInfo.tags
+        this.formData.goods_price = res.data.goodsInfo.price
+
+        console.log(res)
+        console.log(this.formData)
+        // this.goodsDetails.goods_num = res.data.goods_num
+        // this.dialogList = res.data.dialogList
+        // this.Star = res.data.star
       }
     },
     // 获取上传状态
@@ -335,8 +416,8 @@
     mounted() {
       const query = uni.createSelectorQuery().in(this);
       query.select('#my-tab-bar').boundingClientRect(data => {
-                      this.tabBarHeight = data.height
-                  }).exec();
+        this.tabBarHeight = data.height
+      }).exec();
     }
   }
 </script>
@@ -395,18 +476,21 @@
             position: relative;
             flex: 1;
             color: #000;
-            .price-unit{
+
+            .price-unit {
               position: absolute;
               top: 0;
               right: 0;
               bottom: 0;
             }
+
             .picker {
               display: flex;
               justify-content: space-between;
             }
+
             .online-sell-switch {
-              transform:scale(0.7);
+              transform: scale(0.7);
               margin-left: 350rpx;
             }
           }
@@ -461,21 +545,25 @@
         background-color: #FFFFFF;
         border-bottom: 30rpx solid #999999;
       }
+
       // 发布公约
       .agreement {
         margin-top: 10rpx;
         padding-left: 30rpx;
         font-size: 24rpx;
         color: #999999;
+
         .agreement-chk {
           transform: scale(0.6);
         }
-        .content{
+
+        .content {
           color: #586C94;
         }
       }
+
       // 提交按钮
-      .submit{
+      .submit {
         margin: 20rpx 30rpx 20rpx 30rpx;
         background: #F37B1D;
         color: #fff;
