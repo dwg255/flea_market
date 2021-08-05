@@ -11,10 +11,15 @@ uni.$showMsg = function(title = "数据请求失败！",duration = 1500){
 // 引入并挂载 vuex
 import store from '@/common/store'
 Vue.prototype.$store = store
+
+import {formatTime } from "@/js_sdk/timer/timer.js"
 Vue.filter(
   "formatPrice",(data) => {
     return data.toFixed(2)
   }
+)
+Vue.filter(
+  "formatTime",formatTime
 )
 import http from '@/common/http/http.js'
 

@@ -14,7 +14,7 @@
       </view>
     </scroll-view>
     <!-- 商品列表 -->
-    <goods-list ref="goods_list_cpn" :cat_id="navList[activeIndex].cat_id"></goods-list>
+    <goods-list ref="goods_list_cpn" :cat_id="cat_id"></goods-list>
   </view>
 </template>
 
@@ -23,10 +23,15 @@
   var screenWidth = 0
   var widthList = []
   export default {
+    components:{
+      cat_id() {
+        return this.activeIndex + 1
+      }
+    },
     data() {
       return {
         activeIndex:0,//nav激活的选项
-        goodsList: [{}, {}], //商品列表
+        // goodsList: [{}, {}], //商品列表
         queryParam: { //查询参数
           query: "",
           cat_id: 0
@@ -54,6 +59,7 @@
     },
     created() {
       this.calculateWindowWidth();
+     
     },
     mounted() {
       	this.calculateItemWidth();
@@ -89,12 +95,13 @@
 			},
       // todo 发起网络请求
       getGoodsList() {
-
+        this.$refs.goods_list_cpn.getGoodsList()
       },
       // 切换nav商品类型选项
       changeNavBar(item,index) {
         this.activeIndex = index
         this.doScrollLeft(index)
+        this.$refs.goods_list_cpn.switchCatId(navList[this.activeIndex].cat_id)
       },
       // 计算左侧滑动距离
       doScrollLeft(index){
@@ -117,6 +124,8 @@
 
 <style lang="scss">
 .goods-list-box {
+  background-color: #F2F2F2;
+  min-height: 100vh;
   .scroll-view {
     border-bottom: 24rpx solid #F2F2F2;
     width: 750rpx;

@@ -9,7 +9,8 @@
 		      <image class="avator-img" :src="goodsInfo.avatar_url"></image>
 		      <view class="seller-info">
 		        <text class="nickname">{{goodsInfo.nickname}}</text>
-		        <text class="publish-date">4天前发布</text>
+		        <!-- <text class="publish-date">4天前发布</text> -->
+		        <text class="publish-date">{{parseInt(goodsInfo.created) | formatTime}}</text>
 		      </view>
 		    </view>
 		    <view class="goods-info">
@@ -45,7 +46,7 @@
 		    <view class="dailog">
 		     
 		      <view class="dailog-content" v-if="goodsInfo.new_message">
-		        <view class="dailog-line">
+		        <view class="dailog-line" v-if="goodsInfo.new_message.question">
 		          {{goodsInfo.new_message.customer_nickname}}：{{goodsInfo.new_message.question}}
 		        </view>
 		        <view class="dailog-line" v-if="goodsInfo.new_message.answer">
@@ -207,6 +208,22 @@
           color:#9ACD56;
           padding: 4rpx 8rpx;
           margin-right: 20rpx;
+          &:nth-child(2){
+            border-color: #FF0000;
+            color:#FF0000;
+          }
+          &:nth-child(3){
+            border-color: #00FF00;
+            color:#00FF00;
+          }
+          &:nth-child(4){
+            border-color: #0000FF;
+            color:#0000FF;
+          }
+          &:nth-child(5){
+            border-color: #00EEFF;
+            color:#00EEFF;
+          }
         }
       }
       // 商品说明

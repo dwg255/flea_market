@@ -24,6 +24,7 @@
       return {
         ready:false,
         isloading:false,
+        shop_id:0,
         hasMore:"下拉记载更多",
         goodsList:[],
         queryParam:{
@@ -35,9 +36,10 @@
     },
     onLoad(option) {
       this.shop_id = option.shop_id
+      this.getGoodsList()
     },
     created() {
-       this.getGoodsList()
+       
     },
     methods: {
      // 加载数据
@@ -46,6 +48,7 @@
        if (this.isloading) return
        if (this.hasMore == "已加载全部" ) return
        this.isloading = true
+       console.log(this.shop_id)
        const res = await goodsList({shop_id:parseInt(this.shop_id),...this.queryParam})
        // console.log(res)
        if (res.statusCode == 200 ) {

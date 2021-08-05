@@ -24,7 +24,7 @@
           </view>
           <view class="content">
             <view class="tag">
-              19天前发布
+               {{parseInt(goodsDetails.created) | formatTime}}
             </view>
             <view class="tag">
               {{goodsDetails.views_num}}人浏览
@@ -124,27 +124,6 @@
           </view>
         </view>
       </view>
-      <!-- <view class="message-item">
-        <view class="header">
-          <view class="avator">
-            <image class="avator-img" src="../../static/navs/1.jpeg"></image>
-            <text>dwg</text>
-          </view>
-          <text class="contact-date">6天前来过</text>
-        </view>
-        <view class="content">
-          <view class="line">
-            <text>在吗？</text>
-          </view>
-          <view class="line">
-            <view class="seller-response">
-              <view class="icon-section" @click="openDailog('response')">
-                回复 <view class="iconfont icon-xiaoxi"> </view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view> -->
     </view>
     <!-- 底部锁定栏 -->
     <view class="foot">
@@ -152,7 +131,9 @@
         需付：{{goodsDetails.price | formatPrice}}元
       </view>
       <view class="opt">
-        <button type="default" @click="opt">操作</button>
+        <button type="default" @click="opt">
+          <text v-if="userInfo.user_id == goodsDetails.user_id">操作</text>
+          <text v-else>购买</text></button>
       </view>
       <!-- 左边固定 联系按钮 -->
       <view class="fab-container">
@@ -203,7 +184,7 @@
     },
     data() {
       return {
-        ready:false,
+        ready: false,
         goods_id: 0,
         Star: true,
         isFav: true,
@@ -311,38 +292,46 @@
       },
       // opt操作
       opt() {
-        uni.showActionSheet({
-          itemList: ['已转让', '下架', '编辑'],
-          success: async (res) => {
-            console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
-            if (res.tapIndex == 1) {
-              // console.log("ok")
-              let res = await sold({},{goods_id:this.goods_id,status:1})
-              // let res = await sold({},{goods_id:this.goods_id,status:1});
-              if (res.statusCode == 200) {
-                uni.showToast({
-                  title: res.data.msg,
-                  duration: 2000,
-                  icon: "success"
-                });
+        if (this.userInfo.user_id == this.goodsDetails.user_id) {
+          uni.showActionSheet({
+            itemList: ['已转让', '下架', '编辑'],
+            success: async (res) => {
+              console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
+              if (res.tapIndex == 0 || res.tapIndex == 1) {
+                // console.log("ok")
+                let res = await sold({}, {
+                  goods_id: this.goods_id,
+                  status: res.tapIndex + 1
+                })
+                // let res = await sold({},{goods_id:this.goods_id,status:1});
+                if (res.statusCode == 200) {
+                  uni.showToast({
+                    title: res.data.msg,
+                    duration: 2000,
+                    icon: "success"
+                  });
+                }
+              } else if (res.tapIndex == 2) {
+                uni.reLaunch({
+                  url: "../../pages/publish/publish?goods_id=" + this.goods_id
+                })
               }
-            } else if (res.tapIndex == 2) {
-              uni.reLaunch({
-                url:"../../pages/publish/publish?goods_id=" + this.goods_id
-              })
+            },
+            fail: function(res) {
+              console.log(res.errMsg);
             }
-          },
-          fail: function(res) {
-            console.log(res.errMsg);
-          }
-        });
+          });
+        } else {
+          console.log("调起支付")
+        }
+
       },
       open() {
         this.$refs.popup.open()
       },
       close() {
         this.$refs.popup.close()
-      },	
+      },
       async confirm(value) {
         // console.log(value)
         let message = value.trim()
@@ -435,12 +424,13 @@
             padding-right: 250rpx;
             display: flex;
             border-bottom: 1px dotted #F2F2F2;
-            justify-content: space-between;
+            justify-content: flex-start;
 
             .tag {
               font-size: 22rpx;
               padding: 6rpx 8rpx;
               color: #FFFFFF;
+              margin-right: 10rpx;
 
               &:nth-child(1) {
                 background-color: #F37B1D;

@@ -76,6 +76,7 @@
 	let QQMapWX = require('../../common/libs/qqmap-wx-jssdk.js')
 	import {userLogin} from '@/common/api/user/login.js'
 	let count = 0
+  // import timer from "@/js_sdk/xbc-timer/timer.js"
 	import {
 		navList
 	} from "@/common/nav-list.js"

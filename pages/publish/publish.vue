@@ -213,7 +213,7 @@
           goods_id: 0,
           title: "",
           content: "",
-          goods_tags: ["apple", "phone"],
+          goods_tags: [],
           goods_num: 1,
           goods_price: 0,
           online_sell: true,
